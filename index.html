@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    <title>whatsapp</title>
+</head>
+<style>
+    body{
+        background-color: antiquewhite;
+        justify-content: center;
+        margin: 0%;
+    }
+    header{
+        background-color:#075E54;
+        font-family: 'Roboto', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+
+
+        padding: 5px;
+        height: 70px;
+        display: flex;
+        gap: 5px;
+        align-items: center;
+    }
+    .header h4{
+        display:inline;
+     margin: 7px;
+     height: 12px;
+     color: azure;
+     justify-content: space-evenly;
+    }
+    .header img{
+    margin-left: 10px;
+    border-radius: 20px;
+  height: 40px;
+  width: 40px;
+    object-fit: cover;
+    vertical-align: middle;
+     
+       
+    }
+.info {
+  margin-left: auto;
+  margin-right: 10px;
+  color: white; /* optional: if your icon isn't visible */
+  cursor: pointer;
+}
+
+
+
+    .chat-container {
+    max-width: 500px;
+    margin: 20px auto;
+    display: flex;
+    flex-direction: column;
+    background-color: #ECE5DD;
+    border-radius: 10px;
+    padding: 10px;
+    height: 500px;
+    overflow: hidden;
+}
+
+.messages-area {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px;
+    border-radius: 10px;
+    background-color: #ffffff;
+}
+
+.chat-bubble {
+    max-width: 70%;
+    padding: 10px;
+    border-radius: 15px;
+    font-size: 14px;
+    word-wrap: break-word;
+}
+
+.incoming {
+    background-color: #ECECEC;
+    align-self: flex-start;
+}
+
+.outgoing {
+    background-color: #DCF8C6;
+    align-self: flex-end;
+}
+
+.chat-input {
+    display: flex;
+    gap: 10px;
+    padding: 10px 0;
+}
+
+.chat-input {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #f0f0f0;
+  gap: 10px;
+}
+
+.img-icon {
+  font-size: 20px;
+  cursor: pointer;
+  color: #000000;
+  user-select: none;
+  background-color:grey;
+  border-radius: 5px;
+}
+
+#messageInput {
+  flex: 1;
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+button {
+  background-color: #075E54;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  padding: 8px 16px;
+  cursor: pointer;
+}
+
+
+</style>
+
+<body>
+    <div class="header">
+        <header>
+            <img class="pic" src="whatsapp-1411048_640.webp" width="35px" height="50px">
+
+            <h4>Whatsapp integration</h4>
+           
+            <div class="info">
+            <i class="fa-solid fa-circle-info" ></i>
+            </div>
+</div>
+        </header>
+    </div>
+  <div class="chat-container">
+  <div id="messages" class="messages-area"></div>
+
+  <div class="chat-input">
+    <!-- 📎 Upload icon -->
+    <label for="imgUpload" class="img-icon">📎</label>
+    <input type="file" id="imgUpload" accept="image/*" style="display: none" />
+
+    <input id="messageInput" type="text" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+    <i class="fa-solid fa-microphone"></i>
+  </div>
+</div>
+
+
+ <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const username = prompt("Enter your name");
+
+    // Send username to server
+    socket.emit("new-user", username);
+
+    const input = document.getElementById('messageInput');
+    const messages = document.getElementById('messages');
+
+    function sendMessage() {
+      const msg = input.value;
+      if (msg.trim() !== "") {
+        const data = {
+          user: username,
+          text: msg
+        };
+        socket.emit('chat message', data); // send to server
+        addMessageBubble(data, 'outgoing'); // show on own screen
+        input.value = '';
+      }
+    }
+
+    // Handle messages from other users
+    socket.on('chat message', (data) => {
+      if (data.user !== username) {
+        addMessageBubble(data, 'incoming');
+      }
+    });
+
+    // Add message to chat UI
+    function addMessageBubble(data, type) {
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('chat-bubble', type);
+      msgDiv.innerHTML = `<strong>${data.user}:</strong> ${data.text}`;
+      messages.appendChild(msgDiv);
+      messages.scrollTop = messages.scrollHeight;
+    }
+  </script>
+
+    
+</body>
+</html>
